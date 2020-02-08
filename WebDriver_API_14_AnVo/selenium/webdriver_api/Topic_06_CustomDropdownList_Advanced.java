@@ -49,9 +49,11 @@ public class Topic_06_CustomDropdownList_Advanced {
 	public void TC_04_CustomDropdownList() throws InterruptedException {
 		
 		String[] months = {"January","February","March"};
-		String monthsDropdown = "//div[@class='form-group row'][2]//div[@class='ms-parent multiple-select']";
+//		String monthsDropdown = "//div[@class='form-group row'][2]//div[@class='ms-parent multiple-select']";
+		String monthsDropdown = "//div[@class='form-group row'][4]//div[@class='ms-parent multiple-select']";
 		String monthElement = "//div[@class='form-group row'][2]//input[@data-name='selectItem']";
 		
+		Thread.sleep(2000);
 		selectMultipleItemsFromCustomDropdown(monthsDropdown, monthElement, months);
 		Assert.assertTrue(verifyElementsAreSelected(monthsDropdown, months));
 		
@@ -84,8 +86,8 @@ public class Topic_06_CustomDropdownList_Advanced {
 	
 	public void selectMultipleItemsFromCustomDropdown(String parentsXpath, String childrenXpath, String[] selectedItems)
 	{
-		driver.findElement(By.xpath(parentsXpath)).click();
-//		js.executeScript("arguments[0].click();",parentsXpath);
+//		driver.findElement(By.xpath(parentsXpath)).click();
+		js.executeScript("arguments[0].click();",driver.findElement(By.xpath(parentsXpath)));
 		List<WebElement> allItems = driver.findElements(By.xpath(childrenXpath));
 		wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(childrenXpath)));
 		for (String item: selectedItems)
