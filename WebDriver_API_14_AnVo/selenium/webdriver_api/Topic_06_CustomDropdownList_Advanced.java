@@ -71,7 +71,7 @@ public class Topic_06_CustomDropdownList_Advanced {
 				return false;
 			}
 		}
-		else if (selectedItems.length > 3 && selectedItems.length <= 12)
+		else if (selectedItems.length > 3 && selectedItems.length <= 11)
 		{
 			return actualResult.equals(selectedItems.length + " of 12 selected");
 		}
