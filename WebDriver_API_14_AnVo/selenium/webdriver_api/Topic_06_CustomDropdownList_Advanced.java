@@ -22,6 +22,7 @@ import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 
 public class Topic_06_CustomDropdownList_Advanced {
 	WebDriver driver;
@@ -30,28 +31,52 @@ public class Topic_06_CustomDropdownList_Advanced {
 
 	@BeforeClass
 	public void beforeClass() {
-		System.setProperty("webdriver.gecko.driver", System.getProperty("user.dir") + "/driver/geckodriver.exe");
-		driver = new FirefoxDriver();
-//		System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir") + "/driver/chromedriver.exe");
-//		driver = new ChromeDriver();
-		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
-		driver.manage().window().maximize();
-
-		js = (JavascriptExecutor) driver;
+		System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir") + "/driver/chromedriver.exe");
 	}
 
 	@BeforeMethod
 	public void beforeMethod() {
+		System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir") + "/driver/chromedriver.exe");
+		driver = new ChromeDriver();
+		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+		driver.manage().window().maximize();
+
+		js = (JavascriptExecutor) driver;
 		driver.get("http://multiple-select.wenzhixin.net.cn/examples#basic.html");
 	}
 	
 	@Test
-	public void TC_04_CustomDropdownList() throws InterruptedException {
+	public void TC_04_CustomDropdownList_SelectThreeItems() throws InterruptedException {
 		
 		String[] months = {"January","February","March"};
-		String monthsDropdown = "//div[@class='form-group row'][2]//div[@class='ms-parent multiple-select']";
-		String monthElement = "//div[@class='form-group row'][2]//input[@data-name='selectItem']";
+		String monthsDropdown = "//div[@class='form-group row'][2]//div[@class='ms-parent multiple-select']/button";
+		String monthElement = "//div[@class='form-group row'][2]//li";
 		
+		driver.switchTo().frame(driver.findElement(By.xpath("//iframe[@src='templates/template.html?v=188&url=basic.html']")));
+		selectMultipleItemsFromCustomDropdown(monthsDropdown, monthElement, months);
+		Assert.assertTrue(verifyElementsAreSelected(monthsDropdown, months));
+	}
+	
+	@Test
+	public void TC_05_CustomDropdownList_SelectFourItems() throws InterruptedException {
+		
+		String[] months = {"January","February","March","December"};
+		String monthsDropdown = "//div[@class='form-group row'][2]//div[@class='ms-parent multiple-select']/button";
+		String monthElement = "//div[@class='form-group row'][2]//li";
+		
+		driver.switchTo().frame(driver.findElement(By.xpath("//iframe[@src='templates/template.html?v=188&url=basic.html']")));
+		selectMultipleItemsFromCustomDropdown(monthsDropdown, monthElement, months);
+		Assert.assertTrue(verifyElementsAreSelected(monthsDropdown, months));
+	}
+	
+	@Test
+	public void TC_06_CustomDropdownList_SelectAllItems() throws InterruptedException {
+		
+		String[] months = {"[Select all]"};
+		String monthsDropdown = "//div[@class='form-group row'][2]//div[@class='ms-parent multiple-select']/button";
+		String monthElement = "//div[@class='form-group row'][2]//li";
+		
+		driver.switchTo().frame(driver.findElement(By.xpath("//iframe[@src='templates/template.html?v=188&url=basic.html']")));
 		selectMultipleItemsFromCustomDropdown(monthsDropdown, monthElement, months);
 		Assert.assertTrue(verifyElementsAreSelected(monthsDropdown, months));
 		
@@ -59,9 +84,14 @@ public class Topic_06_CustomDropdownList_Advanced {
 
 	public boolean verifyElementsAreSelected(String parentXpath, String[] selectedItems) {
 		String actualResult = driver.findElement(By.xpath(parentXpath)).getText();
-		if (selectedItems.length > 0 && selectedItems.length <= 3)
+		
+		if (selectedItems.length == 1 && !selectedItems[0].equals("[Select all]"))
 		{
-			String expectedResult = String.join(",", selectedItems);
+			return actualResult.equals(selectedItems[0]);
+		}
+		else if (selectedItems.length > 1 && selectedItems.length <= 3)
+		{
+			String expectedResult = String.join(", ", selectedItems);
 			if (expectedResult.equalsIgnoreCase(actualResult))
 			{
 				return true;
@@ -75,27 +105,29 @@ public class Topic_06_CustomDropdownList_Advanced {
 		{
 			return actualResult.equals(selectedItems.length + " of 12 selected");
 		}
-		else
+		else //selectedItem = "[Select all]"
 		{
 			return actualResult.equals("All selected");
 		}
 	}
 
 	
-	public void selectMultipleItemsFromCustomDropdown(String parentsXpath, String childrenXpath, String[] selectedItems)
+	public void selectMultipleItemsFromCustomDropdown(String parentsXpath, String childrenXpath, String[] selectedItems) throws InterruptedException
 	{
 //		driver.findElement(By.xpath(parentsXpath)).click();
 		js.executeScript("arguments[0].click();",driver.findElement(By.xpath(parentsXpath)));
 		List<WebElement> allItems = driver.findElements(By.xpath(childrenXpath));
-		wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(childrenXpath)));
+//		wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(childrenXpath)));
+		Thread.sleep(2000);
 		for (String item: selectedItems)
 		{
 			for (WebElement element: allItems)
 			{
+				System.out.println(element.getText());
 					if (element.getText().equals(item))
 					{
-						js.executeScript("arguments[0].scrollIntoView(true);",element);
-						js.executeScript("arguments[0].click();",element);
+						js.executeScript("arguments[0].scrollIntoView(true);",element.findElement(By.tagName("input")));
+						js.executeScript("arguments[0].click();",element.findElement(By.tagName("input")));
 						break;
 					}
 			}
@@ -106,6 +138,11 @@ public class Topic_06_CustomDropdownList_Advanced {
 			}
 		}
 		
+	}
+	
+	@AfterMethod
+	public void afterMethod() {
+		driver.close();
 	}
 
 	@AfterClass
