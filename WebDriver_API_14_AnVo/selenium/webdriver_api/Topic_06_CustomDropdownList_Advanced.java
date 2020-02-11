@@ -40,6 +40,8 @@ public class Topic_06_CustomDropdownList_Advanced {
 		driver = new ChromeDriver();
 		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 		driver.manage().window().maximize();
+		
+		wait = new WebDriverWait(driver, 10);
 
 		js = (JavascriptExecutor) driver;
 		driver.get("http://multiple-select.wenzhixin.net.cn/examples#basic.html");
@@ -117,8 +119,8 @@ public class Topic_06_CustomDropdownList_Advanced {
 //		driver.findElement(By.xpath(parentsXpath)).click();
 		js.executeScript("arguments[0].click();",driver.findElement(By.xpath(parentsXpath)));
 		List<WebElement> allItems = driver.findElements(By.xpath(childrenXpath));
-//		wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(childrenXpath)));
-		Thread.sleep(2000);
+		wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(childrenXpath)));
+//		Thread.sleep(2000);
 		for (String item: selectedItems)
 		{
 			for (WebElement element: allItems)
